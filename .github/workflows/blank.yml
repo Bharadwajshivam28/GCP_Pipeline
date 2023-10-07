@@ -21,6 +21,7 @@ jobs:
     - name: Checkout code at Commit ID
       run: |
         COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
+        mkdir /tmp/repo
         git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} /tmp/repo
         mv /tmp/repo/* .
         rm -rf /tmp/repo
