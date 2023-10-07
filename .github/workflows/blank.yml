@@ -12,17 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
     - name: Use Entered Commit ID
       id: commit_id_input
       run: |
         COMMIT_ID="${{ github.event.inputs.commit_id }}"
         echo "Using Commit ID: $COMMIT_ID"
-        git commit -m "initial commit"
-        git revert --no-commit $COMMIT_ID..HEAD
   
+    - name: Download code from Commit ID
+      run: |
+        GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
+        OWNER="${{ github.repository_owner }}"
+        REPO="${{ github.repository }}"
+        API_URL="https://api.github.com/repos/$OWNER/$REPO/zipball/$COMMIT_ID"
+        
+        curl -sSL -H "Authorization: token $GITHUB_TOKEN" -o code.zip $API_URL
+        unzip code.zip
+        rm code.zip
+
     - name: Copy code to GCS bucket
       run: |
         gsutil -m cp -r . gs://testmmf/$COMMIT_ID/
