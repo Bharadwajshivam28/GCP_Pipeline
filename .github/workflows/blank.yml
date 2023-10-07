@@ -15,6 +15,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Debug Repository Info
+      run: |
+        git log --oneline -n 10
+        git branch -a
+
     - name: Use Entered Commit ID
       id: commit_id_input
       run: |
