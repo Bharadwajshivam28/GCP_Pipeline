@@ -17,17 +17,12 @@ jobs:
       run: |
         COMMIT_ID="${{ github.event.inputs.commit_id }}"
         echo "Using Commit ID: $COMMIT_ID"
-  
-    - name: Create directory
-      run: |
-        mkdir /tmp/repo
 
     - name: Checkout code at Commit ID
       run: |
         COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
-        git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} /tmp/repo
-        mv /tmp/repo/* .
-        rm -rf /tmp/repo
+        git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} .
+        rm -rf .git  
 
     - name: Copy code to GCS bucket
       run: |
