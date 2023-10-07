@@ -15,6 +15,16 @@ jobs:
        id-token: 'write'
 
     steps:
+    - id: auth
+      name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        token_format: access_token
+        workload_identity_provider: ${{ secrets.WIP }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT }}
+        access_token_lifetime: 300s
+        project_id: "dev-matchmyflight"
+        
     - name: Use Entered Commit ID
       id: commit_id_input
       run: |
@@ -38,6 +48,9 @@ jobs:
         mv /tmp/unzipped/* /tmp/repo/
         rm -rf /tmp/unzipped
 
+    - name: Authorize gsutil
+      uses: google-github-actions/setup-gcloud@v1
+        
     - name: Copy code to GCS bucket
       run: |
         gsutil -m cp -r /tmp/repo/* gs://testmmf/$COMMIT_ID/
