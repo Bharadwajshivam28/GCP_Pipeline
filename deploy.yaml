@@ -1,0 +1,56 @@
+name: Build and Store Artifacts
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  CLOUD_STORAGE_BUCKET: dev-build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - id: auth
+      name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        token_format: access_token
+        workload_identity_provider: ${{ secrets.WIP }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT }}
+        access_token_lifetime: 300s
+        project_id: "dev"
+   
+    - name: Create Zip Folder
+      run: |
+        zip -r dev-fe.zip .
+    - name: Upload Zip to Cloud Storage 
+      uses: google-github-actions/upload-cloud-storage@v1
+      with:
+        path: dev-fe.zip
+        destination: ${{ env.CLOUD_STORAGE_BUCKET }}
+        process_gcloudignore: false
+    
+    - name: Authorize gsutil
+      uses: google-github-actions/setup-gcloud@v1
+        
+    - name: Unzip ZIP file
+      run: |
+        gsutil cp gs://dev-build/dev-fe.zip ./source-file.zip
+        unzip ./source-file.zip -d ./unzipped-contents
+
+    - name: Copy Unzipped Contents to Destination Bucket
+      run: |
+        gsutil -m cp -r ./unzipped-contents/* gs://dev-live/
+    - name: Cleanup
+      run: |
+        rm -rf ./source-file.zip ./unzipped-contents
