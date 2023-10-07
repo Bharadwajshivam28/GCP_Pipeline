@@ -1,15 +1,29 @@
-name: Mixed inputs
+name: Copy Code by Commit ID
 
 on:
   workflow_dispatch:
     inputs:
-      message:
+      commit_id:
         required: true
+        description: 'Commit ID to use for copying'
 
 jobs:
-  greet:
+  copy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Send greeting
-      run: echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[gi
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Use Entered Commit ID
+      id: commit_id_input
+      run: |
+        echo "::set-output name=commit_id::${{ github.event.inputs.commit_id }}"
+        
+    - name: Checkout code at the specified commit
+      run: |
+        git checkout ${{ steps.commit_id_input.outputs.commit_id }}
+
+    - name: Copy code to GCS bucket
+      run: |
+        gsutil -m cp -r . gs://testmmf/${{ steps.commit_id_input.outputs.commit_id }}/
