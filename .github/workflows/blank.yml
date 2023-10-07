@@ -20,7 +20,7 @@ jobs:
   
     - name: Download code from Commit ID
       run: |
-        GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        GITHUB_TOKEN="${{ secrets.KEY }}"
         COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
         OWNER="${{ github.repository_owner }}"
         REPO="${{ github.repository }}"
