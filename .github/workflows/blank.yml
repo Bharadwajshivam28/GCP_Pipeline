@@ -18,12 +18,10 @@ jobs:
     - name: Use Entered Commit ID
       id: commit_id_input
       run: |
-        echo "::set-output name=commit_id::${{ github.event.inputs.commit_id }}"
-        
-    - name: Checkout code at the specified commit
-      run: |
-        git checkout ${{ steps.commit_id_input.outputs.commit_id }}
+        COMMIT_ID="${{ github.event.inputs.commit_id }}"
+        echo "Using Commit ID: $COMMIT_ID"
+        git checkout $COMMIT_ID
 
     - name: Copy code to GCS bucket
       run: |
-        gsutil -m cp -r . gs://testmmf/${{ steps.commit_id_input.outputs.commit_id }}/
+        gsutil -m cp -r . gs://testmmf/$COMMIT_ID/
