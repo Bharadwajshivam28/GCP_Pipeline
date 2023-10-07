@@ -20,6 +20,7 @@ jobs:
       run: |
         COMMIT_ID="${{ github.event.inputs.commit_id }}"
         echo "Using Commit ID: $COMMIT_ID"
+        git commit -m "initial commit"
         git revert --no-commit $COMMIT_ID..HEAD
   
     - name: Copy code to GCS bucket
