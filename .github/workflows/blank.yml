@@ -18,11 +18,18 @@ jobs:
         COMMIT_ID="${{ github.event.inputs.commit_id }}"
         echo "Using Commit ID: $COMMIT_ID"
 
+    - name: Create 'test' directory
+      run: |
+        mkdir test
+
     - name: Checkout code at Commit ID
       run: |
         COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
-        git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} .
-        rm -rf .git  
+        git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} test
+
+    - name: Copy code to 'test' directory
+      run: |
+        cp -r test/* .
 
     - name: Copy code to GCS bucket
       run: |
