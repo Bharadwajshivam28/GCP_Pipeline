@@ -17,18 +17,13 @@ jobs:
       run: |
         COMMIT_ID="${{ github.event.inputs.commit_id }}"
         echo "Using Commit ID: $COMMIT_ID"
-  
-    - name: Download code from Commit ID
+
+    - name: Checkout code at Commit ID
       run: |
-        GITHUB_TOKEN="${{ secrets.KEY }}"
         COMMIT_ID="${{ steps.commit_id_input.outputs.COMMIT_ID }}"
-        OWNER="${{ github.repository_owner }}"
-        REPO="${{ github.repository }}"
-        API_URL="https://api.github.com/repos/$OWNER/$REPO/zipball/$COMMIT_ID"
-        
-        curl -sSL -H "Authorization: token $GITHUB_TOKEN" -o code.zip $API_URL
-        unzip code.zip
-        rm code.zip
+        git clone --depth 1 --branch $COMMIT_ID https://github.com/${{ github.repository }} /tmp/repo
+        mv /tmp/repo/* .
+        rm -rf /tmp/repo
 
     - name: Copy code to GCS bucket
       run: |
